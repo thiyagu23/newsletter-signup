@@ -1,34 +1,37 @@
-const express = require('express');
+const express = require("express");
 const bodyParser = require("body-parser");
-const request = require('request');
-const https = require("https")
+const request = require("request");
+const https = require("https");
 const app = express();
 
-app.use('/public', express.static("public"))
+app.use("/public", express.static("public"));
 
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
 
-app.get("/", function(req, res) {
+app.get("/", function (req, res) {
   res.sendFile(__dirname + "/sign-up.html");
-})
+});
 
-app.post("/sign-up", function(req, res) {
-
+app.post("/sign-up", function (req, res) {
   const firstName = req.body.fname;
   const lastName = req.body.lname;
   const email = req.body.email;
 
   const data = {
-    members: [{
-      email_address: email,
-      status: "subscribed",
-      merge_fields: {
-        FNAME: firstName,
-        LNAME: lastName
-      }
-    }]
+    members: [
+      {
+        email_address: email,
+        status: "subscribed",
+        merge_fields: {
+          FNAME: firstName,
+          LNAME: lastName,
+        },
+      },
+    ],
   };
 
   const jsonData = JSON.stringify(data);
@@ -37,32 +40,29 @@ app.post("/sign-up", function(req, res) {
 
   const options = {
     method: "POST",
-    auth: "thiyagu15:5397568d71949ff09e7322f8d39b7fef-us11"
-  }
+    auth: "thiyagu15:5397568d71949ff09e7322f8d39b7fef-us11",
+  };
 
-  const req1 = https.request(url, options, function(res1) {
+  const req1 = https.request(url, options, function (res1) {
     if (res1.statusCode === 200) {
       res.sendFile(__dirname + "/success.html");
     } else {
-    res.sendFile(__dirname + "/failure.html");
+      res.sendFile(__dirname + "/failure.html");
     }
 
-    res1.on("data", function(data) {
+    res1.on("data", function (data) {
       console.log(JSON.parse(data));
     });
   });
 
   req1.write(jsonData);
   req1.end();
-
 });
 
 app.post("/failure", function (req, res) {
-  res.redirect("/")
+  res.redirect("/");
 });
 
-
-
-app.listen(process.env.PORT || 3000, function() {
+app.listen(process.env.PORT || 3000, function () {
   console.log("server is running");
 });
